@@ -7,6 +7,7 @@ import com.pitang.desafio_tcepe.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,16 +23,18 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Optional<List<UserDTO>> findAllUsers() {
+    public List<UserDTO> findAllUsers() {
         ObjectMapper objectMapper = new ObjectMapper();
         final List<User> users = repository.findAll();
 
+
+
         return users.isEmpty()
-                ? Optional.empty()
-                : Optional.of(users
+                ? new ArrayList<>()
+                : users
                 .stream()
                 .map(user -> objectMapper
                         .convertValue(user, UserDTO.class))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
     }
 }

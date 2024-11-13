@@ -24,8 +24,8 @@ public class UserController {
     }
 
     @GetMapping(produces = "application/json")
-    public ResponseEntity<Optional<List<UserDTO>>> getAllUsers() {
-        final Optional<List<UserDTO>> users = service.findAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        final List<UserDTO> users = service.findAllUsers();
 
         return ResponseEntity
                 .status(HttpStatus.OK)
