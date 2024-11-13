@@ -30,12 +30,10 @@ class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl userService;
 
-    private ObjectMapper objectMapper;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
     }
 
     @Test

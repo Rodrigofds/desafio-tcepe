@@ -2,6 +2,9 @@ package com.pitang.desafio_tcepe.controller;
 
 import com.pitang.desafio_tcepe.dto.UserDTO;
 import com.pitang.desafio_tcepe.service.IUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +26,20 @@ public class UserController {
     }
 
     @GetMapping(produces = "application/json")
+    @Operation(summary = "List all users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuários encontratos"),
+
+    })
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         final List<UserDTO> users = service.findAllUsers();
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(users);
+        if (!users.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(users);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(users);
     }
 }
