@@ -26,8 +26,6 @@ public class UserServiceImpl implements IUserService {
         ObjectMapper objectMapper = new ObjectMapper();
         final List<User> users = repository.findAll();
 
-
-
         return users.isEmpty()
                 ? new ArrayList<>()
                 : users
