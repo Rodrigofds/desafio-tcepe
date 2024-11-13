@@ -1,6 +1,6 @@
-package com.pitang.desafio_tcepe.service;
+package com.pitang.desafio.tcepe.service;
 
-import com.pitang.desafio_tcepe.dto.UserDTO;
+import com.pitang.desafio.tcepe.dto.UserDTO;
 
 import java.util.List;
 

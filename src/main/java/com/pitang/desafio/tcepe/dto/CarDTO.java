@@ -1,10 +1,14 @@
-package com.pitang.desafio_tcepe.dto;
+package com.pitang.desafio.tcepe.dto;
 
-import com.pitang.desafio_tcepe.model.User;
+import com.pitang.desafio.tcepe.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 public class CarDTO {
     private Long id;
     @Schema(description = "Ano do Veículo", example = "1977")

@@ -1,14 +1,18 @@
-package com.pitang.desafio_tcepe.dto;
+package com.pitang.desafio.tcepe.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.pitang.desafio_tcepe.model.Car;
+import com.pitang.desafio.tcepe.model.Car;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 public class UserDTO {
     @JsonIgnore
     private Long id;

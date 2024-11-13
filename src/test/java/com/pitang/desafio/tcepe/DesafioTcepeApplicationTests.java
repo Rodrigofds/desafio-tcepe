@@ -1,4 +1,4 @@
-package com.pitang.desafio_tcepe;
+package com.pitang.desafio.tcepe;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

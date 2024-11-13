@@ -1,7 +1,7 @@
-package com.pitang.desafio_tcepe.controller;
+package com.pitang.desafio.tcepe.controller;
 
-import com.pitang.desafio_tcepe.dto.UserDTO;
-import com.pitang.desafio_tcepe.service.IUserService;
+import com.pitang.desafio.tcepe.dto.UserDTO;
+import com.pitang.desafio.tcepe.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

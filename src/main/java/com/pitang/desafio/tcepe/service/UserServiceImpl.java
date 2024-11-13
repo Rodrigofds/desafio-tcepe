@@ -1,9 +1,9 @@
-package com.pitang.desafio_tcepe.service;
+package com.pitang.desafio.tcepe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pitang.desafio_tcepe.dto.UserDTO;
-import com.pitang.desafio_tcepe.model.User;
-import com.pitang.desafio_tcepe.repository.IUserRepository;
+import com.pitang.desafio.tcepe.dto.UserDTO;
+import com.pitang.desafio.tcepe.model.User;
+import com.pitang.desafio.tcepe.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
