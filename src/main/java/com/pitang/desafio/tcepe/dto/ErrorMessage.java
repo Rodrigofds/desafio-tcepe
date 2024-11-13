@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class ErrorMessage {
-    private String error;
-    private int errorCode;
+    private final String error;
+    private final int errorCode;
 
     public ErrorMessage(String error, int errorCode) {
         this.error = error;

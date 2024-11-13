@@ -1,6 +1,5 @@
 package com.pitang.desafio.tcepe.exception;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.pitang.desafio.tcepe.dto.ErrorMessage;
 import lombok.Getter;
 
