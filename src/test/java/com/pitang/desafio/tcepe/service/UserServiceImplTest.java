@@ -94,9 +94,7 @@ class UserServiceImplTest {
 
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(existingUser));
 
-        assertThrows(EmailException.class, () -> {
-            userService.createUser(userDTO);
-        });
+        assertThrows(EmailException.class, () -> userService.createUser(userDTO));
     }
 
     @Test
@@ -109,9 +107,7 @@ class UserServiceImplTest {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByLogin(anyString())).thenReturn(Optional.of(existingUser));
 
-        assertThrows(LoginException.class, () -> {
-            userService.createUser(userDTO);
-        });
+        assertThrows(LoginException.class, () -> userService.createUser(userDTO));
     }
 
     @Test
@@ -124,9 +120,7 @@ class UserServiceImplTest {
         when(userRepository.findByLogin(anyString())).thenReturn(Optional.empty());
         doThrow(new RuntimeException("Database error")).when(userRepository).save(any());
 
-        assertThrows(RuntimeException.class, () -> {
-            userService.createUser(userDTO);
-        });
+        assertThrows(RuntimeException.class, () -> userService.createUser(userDTO));
     }
 
     private static UserDTO getUserDTO() throws ParseException {
