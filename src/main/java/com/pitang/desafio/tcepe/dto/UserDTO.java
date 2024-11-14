@@ -1,5 +1,6 @@
 package com.pitang.desafio.tcepe.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
 
     @Schema(description = "id", example = "1")
@@ -87,7 +89,7 @@ public class UserDTO {
         return userDTO;
     }
 
-    public static User fromDTO(UserDTO userDTO) {
+    public static User fromDTO(final UserDTO userDTO) {
         User user = new User();
         user.setId(null);
         user.setFirstName(userDTO.getFirstName());
@@ -106,6 +108,20 @@ public class UserDTO {
                         return car;
                     }).collect(Collectors.toList()));
         }
+
+        return user;
+    }
+
+    public static User toUpdateFromDTO(final UserDTO userDTO, final long id) {
+        User user = new User();
+        user.setId(id);
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setEmail(userDTO.getEmail());
+        user.setBirthday(userDTO.getBirthday());
+        user.setLogin(userDTO.getLogin());
+        user.setPassword(userDTO.getPassword());
+        user.setPhone(userDTO.getPhone());
 
         return user;
     }
