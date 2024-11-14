@@ -12,6 +12,7 @@ public class UserResponseDTO {
 
     private UserDTO user;
     private ErrorMessage error;
+    private String success;
 
     public static UserResponseDTO success(UserDTO user) {
         UserResponseDTO response = new UserResponseDTO();
@@ -22,6 +23,12 @@ public class UserResponseDTO {
     public static UserResponseDTO error(ErrorMessage error) {
         UserResponseDTO response = new UserResponseDTO();
         response.setError(error);
+        return response;
+    }
+
+    public static UserResponseDTO success(String msg) {
+        UserResponseDTO response = new UserResponseDTO();
+        response.setSuccess(msg);
         return response;
     }
 }
