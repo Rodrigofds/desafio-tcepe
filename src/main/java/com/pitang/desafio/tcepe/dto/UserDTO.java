@@ -38,7 +38,7 @@ public class UserDTO {
     private String lastName;
 
     @NotNull(message = "E-mail cannot be null")
-    @Size(min = 3, max = 15, message = "E-mail should be between 3 and 15 characters")
+    @Size(min = 3, max = 30, message = "E-mail should be between 3 and 30 characters")
     @Schema(description = "E-mail", example = "fulano@ciclano.com")
     private String email;
 
@@ -48,7 +48,7 @@ public class UserDTO {
 
     @NotNull(message = "Login cannot be null")
     @NotBlank(message = "Login cannot be blank")
-    @Size(min = 3, max = 12, message = "Login should be between 3 and 12 characters")
+    @Size(min = 3, max = 15, message = "Login should be between 3 and 15 characters")
     @Schema(description = "Login", example = "fulano")
     private String login;
 

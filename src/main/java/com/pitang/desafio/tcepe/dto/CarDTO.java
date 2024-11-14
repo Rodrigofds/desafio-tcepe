@@ -55,7 +55,6 @@ public class CarDTO {
 
     public static Car fromDTO(CarDTO carDTO) {
         Car car = new Car();
-        car.setId(carDTO.getId());
         car.setYear(carDTO.getYear());
         car.setLicensePlate(carDTO.getLicensePlate());
         car.setModel(carDTO.getModel());
