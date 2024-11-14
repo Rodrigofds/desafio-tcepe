@@ -5,7 +5,6 @@ import com.pitang.desafio.tcepe.exception.expections.EmailException;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface IUserService {
 
