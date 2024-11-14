@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +38,7 @@ public class UserController {
         this.service = service;
     }
 
-    @GetMapping(path = "/users", produces = "application/json")
+    @GetMapping(path = "/users")
     @Operation(summary = "List all users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users found"),
@@ -59,8 +60,7 @@ public class UserController {
     @Operation(summary = "Find an user by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User found"),
-            @ApiResponse(responseCode = "204", description = "User not found"),
-            @ApiResponse(responseCode = "500", description = "User not found"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Unexpected error"),
     })
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
@@ -76,7 +76,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(path = "/users", consumes = "application/json")
+    @PostMapping(path = "/users")
     @Operation(summary = "Create a user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created"),
@@ -111,6 +111,30 @@ public class UserController {
             }
 
             return ResponseEntity.status(status).body(UserResponseDTO.error(errorMessage));
+        }
+    }
+
+    @DeleteMapping("/users/{id}")
+    @Operation(summary = "Delete an user by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User deleted"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Unexpected error")
+    })
+    public ResponseEntity<UserResponseDTO> deleteUserById(@PathVariable Long id) {
+        try {
+            UserDTO dto = service.findUserById(id);
+
+            if (Objects.nonNull(dto)) {
+                service.deleteUserById(id);
+                return ResponseEntity.status(HttpStatus.ACCEPTED)
+                        .body(UserResponseDTO.success("Success: User " + id + " deleted"));
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        } catch (RuntimeException e) {
+            LOGGER.error("Unexpected error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

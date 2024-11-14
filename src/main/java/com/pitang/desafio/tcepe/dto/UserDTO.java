@@ -48,7 +48,7 @@ public class UserDTO {
 
     @NotNull(message = "Login cannot be null")
     @NotBlank(message = "Login cannot be blank")
-    @Size(min = 3, max = 15, message = "Login should be between 3 and 15 characters")
+    @Size(min = 3, max = 30, message = "Login should be between 3 and 30 characters")
     @Schema(description = "Login", example = "fulano")
     private String login;
 
@@ -89,7 +89,7 @@ public class UserDTO {
 
     public static User fromDTO(UserDTO userDTO) {
         User user = new User();
-        user.setId(userDTO.getId());
+        user.setId(null);
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setEmail(userDTO.getEmail());

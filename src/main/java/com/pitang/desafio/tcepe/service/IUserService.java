@@ -12,4 +12,6 @@ public interface IUserService {
     UserDTO findUserById(Long id);
 
     UserDTO createUser(UserDTO userDTO) throws EmailException, LoginException;
+
+    void deleteUserById(Long id) throws EmailException, LoginException;
 }

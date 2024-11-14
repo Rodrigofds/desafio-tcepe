@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,7 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    @Transactional
     @Override
     public UserDTO createUser(@Valid final UserDTO userDTO) throws EmailException, LoginException  {
 
@@ -91,6 +93,18 @@ public class UserServiceImpl implements IUserService {
 
         if (user.isPresent()) {
             throw new LoginException(new ErrorMessage("Login already exists", 101));
+        }
+    }
+
+    @Transactional
+    @Override
+    public void deleteUserById(Long id) throws EmailException, LoginException  {
+        try {
+             repository.deleteById(id);
+
+        } catch (RuntimeException e) {
+            LOGGER.error("Error during delete user.");
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }
