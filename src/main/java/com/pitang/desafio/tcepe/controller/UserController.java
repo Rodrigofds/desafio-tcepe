@@ -39,7 +39,7 @@ public class UserController {
     @Operation(summary = "List all users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users found"),
-
+            @ApiResponse(responseCode = "404", description = "Users not found"),
     })
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         final List<UserDTO> users = service.findAllUsers();
