@@ -1,10 +1,10 @@
 package com.pitang.desafio.tcepe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pitang.desafio.tcepe.dto.ErrorMessage;
+import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.dto.UserDTO;
-import com.pitang.desafio.tcepe.exception.EmailException;
-import com.pitang.desafio.tcepe.exception.LoginException;
+import com.pitang.desafio.tcepe.exception.expections.EmailException;
+import com.pitang.desafio.tcepe.exception.expections.LoginException;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,14 +45,13 @@ public class UserServiceImpl implements IUserService {
 
         userEmailValidation(userDTO.getEmail());
         userLoginValidation(userDTO.getLogin());
-        User user = convertToUser(userDTO);
+        User user = UserDTO.fromDTO(userDTO);
 
         try {
             repository.save(user);
-            return convertToUserDTO(user);
+            return UserDTO.toDTO(user);
 
         } catch (Exception e) {
-
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -72,21 +70,5 @@ public class UserServiceImpl implements IUserService {
         if (user.isPresent()) {
             throw new LoginException(new ErrorMessage("Login already exists", 101));
         }
-    }
-
-    private User convertToUser(final UserDTO userDTO) {
-        if (Objects.nonNull(userDTO.getCars())) {
-            return new User(null, userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(),
-                    userDTO.getBirthday(), userDTO.getLogin(), userDTO.getPassword(), userDTO.getPhone(),
-                    userDTO.getCars());
-        }
-
-        return new User(null, userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(),
-                userDTO.getBirthday(), userDTO.getLogin(), userDTO.getPassword(), userDTO.getPhone(), null);
-    }
-
-    private UserDTO convertToUserDTO(User user) {
-        return new UserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getBirthday(),
-                user.getLogin(), user.getPassword(), user.getPhone(), user.getCars());
     }
 }

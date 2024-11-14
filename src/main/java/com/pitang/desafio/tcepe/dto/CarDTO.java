@@ -1,6 +1,6 @@
 package com.pitang.desafio.tcepe.dto;
 
-import com.pitang.desafio.tcepe.model.User;
+import com.pitang.desafio.tcepe.model.Car;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,5 +39,25 @@ public class CarDTO {
     private String color;
 
     @Schema(description = "Owner")
-    private User user;
+    private UserDTO user;
+
+    public static CarDTO toDTO(Car car) {
+        CarDTO carDTO = new CarDTO();
+        carDTO.setId(car.getId());
+        carDTO.setYear(car.getYear());
+        carDTO.setLicensePlate(car.getLicensePlate());
+        carDTO.setModel(car.getModel());
+        carDTO.setColor(car.getColor());
+        return carDTO;
+    }
+
+    public static Car fromDTO(CarDTO carDTO) {
+        Car car = new Car();
+        car.setId(carDTO.getId());
+        car.setYear(carDTO.getYear());
+        car.setLicensePlate(carDTO.getLicensePlate());
+        car.setModel(carDTO.getModel());
+        car.setColor(carDTO.getColor());
+        return car;
+    }
 }

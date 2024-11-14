@@ -1,8 +1,10 @@
 package com.pitang.desafio.tcepe.controller;
 
 import com.pitang.desafio.tcepe.dto.UserDTO;
-import com.pitang.desafio.tcepe.exception.EmailException;
-import com.pitang.desafio.tcepe.exception.LoginException;
+import com.pitang.desafio.tcepe.dto.UserResponseDTO;
+import com.pitang.desafio.tcepe.exception.expections.EmailException;
+import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
+import com.pitang.desafio.tcepe.exception.expections.LoginException;
 import com.pitang.desafio.tcepe.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -52,30 +54,41 @@ public class UserController {
     }
 
     @PostMapping(path = "/users", consumes = "application/json")
-    @Operation(summary = "create an user to API")
+    @Operation(summary = "Create a user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User created"),
-
+            @ApiResponse(responseCode = "201", description = "User created"),
+            @ApiResponse(responseCode = "400", description = "Email already exists"),
+            @ApiResponse(responseCode = "400", description = "Login already exists"),
+            @ApiResponse(responseCode = "500", description = "Unexpected error")
     })
-    public ResponseEntity<UserDTO> saveUser(@RequestBody @Valid UserDTO dtoIn) throws EmailException, LoginException {
+    public ResponseEntity<UserResponseDTO> saveUser(@RequestBody @Valid UserDTO dtoIn) {
         try {
             UserDTO dtoOut = service.createUser(dtoIn);
-
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(dtoOut);
+                    .body(UserResponseDTO.success(dtoOut));
 
-        } catch (EmailException | LoginException e) {
+        } catch (Exception e) {
+            ErrorMessage errorMessage;
+            HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
             if (e instanceof EmailException) {
                 LOGGER.error("E-mail alert: {}", e.getMessage());
+                errorMessage = new ErrorMessage("Email already exists", 100);
+                status = HttpStatus.BAD_REQUEST;
+
             } else if (e instanceof LoginException) {
                 LOGGER.error("Login alert: {}", e.getMessage());
-            } else {
-                LOGGER.error("Invalid fields: {}", e.getMessage());
-            }
-        }
+                errorMessage = new ErrorMessage("Login already exists", 101);
+                status = HttpStatus.BAD_REQUEST;
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            } else {
+                LOGGER.error("Unexpected error: {}", e.getMessage());
+                errorMessage = new ErrorMessage("Unexpected error", 103);
+            }
+
+            return ResponseEntity.status(status).body(UserResponseDTO.error(errorMessage));
+        }
     }
 
 //    @PutMapping("/{id}")

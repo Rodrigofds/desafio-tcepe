@@ -1,6 +1,5 @@
-package com.pitang.desafio.tcepe.exception;
+package com.pitang.desafio.tcepe.exception.expections;
 
-import com.pitang.desafio.tcepe.dto.ErrorMessage;
 import lombok.Getter;
 
 @Getter

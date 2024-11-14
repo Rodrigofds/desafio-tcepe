@@ -1,8 +1,8 @@
 package com.pitang.desafio.tcepe.service;
 
 import com.pitang.desafio.tcepe.dto.UserDTO;
-import com.pitang.desafio.tcepe.exception.EmailException;
-import com.pitang.desafio.tcepe.exception.LoginException;
+import com.pitang.desafio.tcepe.exception.expections.EmailException;
+import com.pitang.desafio.tcepe.exception.expections.LoginException;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.pitang.desafio.tcepe.dto;
+package com.pitang.desafio.tcepe.exception.expections;
 
 import lombok.Getter;
 
@@ -11,6 +11,4 @@ public class ErrorMessage {
         this.error = error;
         this.errorCode = errorCode;
     }
-
-
 }
