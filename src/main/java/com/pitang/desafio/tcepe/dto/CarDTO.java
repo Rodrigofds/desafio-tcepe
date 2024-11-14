@@ -1,5 +1,6 @@
 package com.pitang.desafio.tcepe.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pitang.desafio.tcepe.model.Car;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class CarDTO {
     private String color;
 
     @Schema(description = "Owner")
+    @JsonIgnore
     private UserDTO user;
 
     public static CarDTO toDTO(Car car) {

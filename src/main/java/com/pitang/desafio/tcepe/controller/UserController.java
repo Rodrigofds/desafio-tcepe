@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -39,7 +42,7 @@ public class UserController {
     @Operation(summary = "List all users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users found"),
-            @ApiResponse(responseCode = "404", description = "Users not found"),
+            @ApiResponse(responseCode = "204", description = "Users not found"),
     })
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         final List<UserDTO> users = service.findAllUsers();
@@ -50,7 +53,28 @@ public class UserController {
                     .body(users);
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(users);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(users);
+    }
+
+    @GetMapping("/users/{id}")
+    @Operation(summary = "Find an user by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(responseCode = "204", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Unexpected error"),
+    })
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        try {
+            UserDTO dto = service.findUserById(id);
+            if (Objects.nonNull(dto)) {
+                return ResponseEntity.status(HttpStatus.OK).body(dto);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (RuntimeException e) {
+            LOGGER.error("Unexpected error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PostMapping(path = "/users", consumes = "application/json")

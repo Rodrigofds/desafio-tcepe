@@ -7,6 +7,8 @@ import com.pitang.desafio.tcepe.exception.expections.EmailException;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.IUserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements IUserService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
     private final IUserRepository repository;
 
     @Autowired
@@ -29,15 +32,34 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<UserDTO> findAllUsers() {
         ObjectMapper objectMapper = new ObjectMapper();
-        final List<User> users = repository.findAll();
+        try {
+            final List<User> users = repository.findAll();
 
-        return users.isEmpty()
-                ? new ArrayList<>()
-                : users
-                .stream()
-                .map(user -> objectMapper
-                        .convertValue(user, UserDTO.class))
-                .collect(Collectors.toList());
+            return users.isEmpty()
+                    ? new ArrayList<>()
+                    : users
+                    .stream()
+                    .map(user -> objectMapper
+                            .convertValue(user, UserDTO.class))
+                    .collect(Collectors.toList());
+        } catch (RuntimeException e) {
+            LOGGER.error("Error during all users search.");
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public UserDTO findUserById(Long id) {
+        try {
+            LOGGER.info("Start user search");
+            Optional<User> user = repository.findById(id);
+
+            return user.map(UserDTO::toDTO).orElse(null);
+
+        } catch (RuntimeException e) {
+            LOGGER.error("Error during the user search.");
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Override

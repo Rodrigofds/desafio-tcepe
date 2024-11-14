@@ -78,7 +78,7 @@ public class UserDTO {
         userDTO.setPassword(user.getPassword());
         userDTO.setPhone(user.getPhone());
 
-        if (user.getCars() != null) {
+        if (Objects.nonNull(user.getCars() )) {
             userDTO.setCars(user.getCars().stream()
                     .map(CarDTO::toDTO)
                     .collect(Collectors.toList()));
