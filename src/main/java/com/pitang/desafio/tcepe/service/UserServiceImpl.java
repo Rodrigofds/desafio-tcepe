@@ -1,9 +1,9 @@
 package com.pitang.desafio.tcepe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.dto.UserDTO;
 import com.pitang.desafio.tcepe.exception.expections.EmailException;
+import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.IUserRepository;
@@ -50,10 +50,10 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserDTO findUserById(Long id) {
+    public UserDTO findUserById(final Long id) {
         try {
             LOGGER.info("Start user search");
-            Optional<User> user = repository.findById(id);
+            final Optional<User> user = repository.findById(id);
 
             return user.map(UserDTO::toDTO).orElse(null);
 
@@ -65,11 +65,11 @@ public class UserServiceImpl implements IUserService {
 
     @Transactional
     @Override
-    public UserDTO createUser(@Valid final UserDTO userDTO) throws EmailException, LoginException  {
+    public UserDTO createUser(@Valid final UserDTO userDTO) throws EmailException, LoginException {
 
         userEmailValidation(userDTO.getEmail());
         userLoginValidation(userDTO.getLogin());
-        User user = UserDTO.fromDTO(userDTO);
+        final User user = UserDTO.fromDTO(userDTO);
 
         try {
             repository.save(user);
@@ -98,9 +98,25 @@ public class UserServiceImpl implements IUserService {
 
     @Transactional
     @Override
-    public void deleteUserById(Long id) throws EmailException, LoginException  {
+    public UserDTO updateUserById(final Long id, final UserDTO dtoIn) throws EmailException, LoginException {
         try {
-             repository.deleteById(id);
+            final User userToUpdate = UserDTO.toUpdateFromDTO(dtoIn, id);
+
+            final User upToDated = repository.saveAndFlush(userToUpdate);
+
+            return UserDTO.toDTO(upToDated);
+
+        } catch (RuntimeException e) {
+            LOGGER.error("Error during updating user.");
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void deleteUserById(final Long id) throws EmailException, LoginException {
+        try {
+            repository.deleteById(id);
 
         } catch (RuntimeException e) {
             LOGGER.error("Error during delete user.");

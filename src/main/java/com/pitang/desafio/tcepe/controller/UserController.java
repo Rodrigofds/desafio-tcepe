@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -111,6 +112,31 @@ public class UserController {
             }
 
             return ResponseEntity.status(status).body(UserResponseDTO.error(errorMessage));
+        }
+    }
+
+    @PutMapping("/users/{id}")
+    @Operation(summary = "Update an user by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User updated"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Unexpected error")
+    })
+    public ResponseEntity<UserDTO> updateAnUserById(@PathVariable Long id, @RequestBody @Valid UserDTO dtoIn) {
+        try {
+            UserDTO userToBeUpdate = service.findUserById(id);
+
+            if (Objects.nonNull(userToBeUpdate)) {
+                final UserDTO updated = service.updateUserById(id, dtoIn);
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(updated);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        } catch (RuntimeException e) {
+            LOGGER.error("Unexpected error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
