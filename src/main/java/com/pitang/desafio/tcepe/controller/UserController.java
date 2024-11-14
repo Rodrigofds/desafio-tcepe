@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -127,7 +126,7 @@ public class UserController {
         try {
             UserDTO userToBeUpdate = service.findUserById(id);
 
-            if (Objects.nonNull(userToBeUpdate)){
+            if (Objects.nonNull(userToBeUpdate)) {
                 final UserDTO updated = service.updateUserById(id, dtoIn);
                 return ResponseEntity
                         .status(HttpStatus.OK)

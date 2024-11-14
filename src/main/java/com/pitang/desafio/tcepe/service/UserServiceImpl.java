@@ -1,10 +1,9 @@
 package com.pitang.desafio.tcepe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pitang.desafio.tcepe.dto.CarDTO;
-import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.dto.UserDTO;
 import com.pitang.desafio.tcepe.exception.expections.EmailException;
+import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.IUserRepository;
@@ -66,7 +65,7 @@ public class UserServiceImpl implements IUserService {
 
     @Transactional
     @Override
-    public UserDTO createUser(@Valid final UserDTO userDTO) throws EmailException, LoginException  {
+    public UserDTO createUser(@Valid final UserDTO userDTO) throws EmailException, LoginException {
 
         userEmailValidation(userDTO.getEmail());
         userLoginValidation(userDTO.getLogin());
@@ -99,7 +98,7 @@ public class UserServiceImpl implements IUserService {
 
     @Transactional
     @Override
-    public UserDTO updateUserById(final Long id, final UserDTO dtoIn) throws EmailException, LoginException  {
+    public UserDTO updateUserById(final Long id, final UserDTO dtoIn) throws EmailException, LoginException {
         try {
             final User userToUpdate = UserDTO.toUpdateFromDTO(dtoIn, id);
 
@@ -115,9 +114,9 @@ public class UserServiceImpl implements IUserService {
 
     @Transactional
     @Override
-    public void deleteUserById(final Long id) throws EmailException, LoginException  {
+    public void deleteUserById(final Long id) throws EmailException, LoginException {
         try {
-             repository.deleteById(id);
+            repository.deleteById(id);
 
         } catch (RuntimeException e) {
             LOGGER.error("Error during delete user.");
