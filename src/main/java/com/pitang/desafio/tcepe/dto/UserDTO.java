@@ -1,6 +1,5 @@
 package com.pitang.desafio.tcepe.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
