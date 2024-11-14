@@ -90,28 +90,4 @@ public class UserController {
             return ResponseEntity.status(status).body(UserResponseDTO.error(errorMessage));
         }
     }
-
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Profissional> atualizar(@PathVariable Long id, @RequestBody Profissional profissional) {
-//        Optional<Profissional> profissionalDb = profissionalService.buscarPorId(id);
-//
-//        if (Objects.nonNull(profissionalDb)){
-//            Profissional profissionalAtualizado = profissionalService.atualizar(profissional);
-//            return ResponseEntity
-//                    .status(HttpStatus.OK)
-//                    .body(profissionalAtualizado);
-//        }
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<String> excluir(@PathVariable Long id) {
-//        Optional<Profissional> profissionalDb = profissionalService.buscarPorId(id);
-//
-//        if (Objects.nonNull(profissionalDb)){
-//            profissionalService.excluir(id);
-//            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Sucesso profissional excluído");
-//        }
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//    }
 }
