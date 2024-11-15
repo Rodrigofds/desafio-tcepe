@@ -1,6 +1,5 @@
 package com.pitang.desafio.tcepe.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pitang.desafio.tcepe.dto.UserDTO;
 import com.pitang.desafio.tcepe.exception.expections.EmailException;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
