@@ -1,4 +1,4 @@
-package com.pitang.desafio.tcepe;
+package com.pitang.desafio_tcepe;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
