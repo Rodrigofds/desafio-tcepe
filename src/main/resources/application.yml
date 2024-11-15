@@ -1,3 +1,11 @@
+# Configuração token JWT
+
+api:
+  security:
+    token:
+      jwt:
+        secret: ${SECRET_TOKEN:apiSecretKey12345}
+
 # Configuração do Banco H2
 spring:
   h2:
@@ -15,11 +23,13 @@ spring:
       dialect: org.hibernate.dialect.H2Dialect
     show-sql: true
 
+# Configuração do Swagger
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
 
+# Configuração servidor
 server:
   port: 8080

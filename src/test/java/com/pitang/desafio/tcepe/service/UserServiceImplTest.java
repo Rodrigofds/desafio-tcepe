@@ -1,17 +1,18 @@
 package com.pitang.desafio.tcepe.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pitang.desafio.tcepe.dto.UserDTO;
 import com.pitang.desafio.tcepe.exception.expections.EmailException;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
 import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.IUserRepository;
+import com.pitang.desafio.tcepe.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,13 +36,15 @@ class UserServiceImplTest {
     @Mock
     private IUserRepository userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UserServiceImpl userService;
 
     @BeforeEach
     void setUp() throws ParseException {
         MockitoAnnotations.openMocks(this);
-        ObjectMapper objectMapper = new ObjectMapper();
     }
 
     @Test
@@ -78,6 +81,7 @@ class UserServiceImplTest {
 
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByLogin(anyString())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(anyString())).thenReturn(anyString());
 
         UserDTO createdUser = userService.createUser(userDTO);
 

@@ -1,9 +1,10 @@
-package com.pitang.desafio.tcepe.service;
+package com.pitang.desafio.tcepe.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pitang.desafio.tcepe.dto.CarDTO;
 import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.repository.ICarRepository;
+import com.pitang.desafio.tcepe.service.ICarService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
