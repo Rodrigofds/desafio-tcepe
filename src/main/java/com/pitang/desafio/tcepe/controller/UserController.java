@@ -46,15 +46,20 @@ public class UserController {
             @ApiResponse(responseCode = "204", description = "Users not found"),
     })
     public ResponseEntity<List<UserDTO>> getAllUsers() {
-        final List<UserDTO> users = service.findAllUsers();
+        try {
+            final List<UserDTO> users = service.findAllUsers();
 
-        if (!users.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(users);
+            if (!users.isEmpty()) {
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(users);
+            }
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(users);
+
+        } catch (RuntimeException e) {
+            LOGGER.error("Unexpected error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(users);
     }
 
     @GetMapping("/users/{id}")
@@ -78,7 +83,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/users")
-    @Operation(summary = "Create a user")
+    @Operation(summary = "Create an user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created"),
             @ApiResponse(responseCode = "400", description = "Email already exists"),
