@@ -10,6 +10,7 @@ import java.util.List;
 public interface IUserService {
 
     List<UserDTO> findAllUsers();
+
     UserDTO findUserById(Long id);
 
     UserDTO createUser(UserDTO userDTO) throws EmailException, LoginException;

@@ -45,7 +45,7 @@ public class UserDTO {
     private String email;
 
     @NotNull(message = "Birthday cannot be null")
-    @Schema(description = "Data Nascimento", example = "AAAA-MM-DD")
+    @Schema(description = "Birthday", example = "AAAA-MM-DD")
     private Date birthday;
 
     @NotNull(message = "Login cannot be null")
@@ -66,7 +66,7 @@ public class UserDTO {
     @Schema(description = "Password", example = "8199999-9999")
     private String phone;
 
-    @Schema(description = "Lista de Carros")
+    @Schema(description = "Cars List")
     private List<CarDTO> cars;
 
     public static UserDTO toDTO(User user) {

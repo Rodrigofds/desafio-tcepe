@@ -39,7 +39,7 @@ public class UserController {
         this.service = service;
     }
 
-    @GetMapping(path = "/users")
+    @GetMapping("/users")
     @Operation(summary = "List all users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users found"),
@@ -69,9 +69,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Unexpected error"),
     })
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable final Long id) {
         try {
-            UserDTO dto = service.findUserById(id);
+            final UserDTO dto = service.findUserById(id);
             if (Objects.nonNull(dto)) {
                 return ResponseEntity.status(HttpStatus.OK).body(dto);
             }
@@ -82,7 +82,7 @@ public class UserController {
         }
     }
 
-    @PostMapping(path = "/users")
+    @PostMapping("/users")
     @Operation(summary = "Create an user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created"),
@@ -90,9 +90,9 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Login already exists"),
             @ApiResponse(responseCode = "500", description = "Unexpected error")
     })
-    public ResponseEntity<UserResponseDTO> saveUser(@RequestBody @Valid UserDTO dtoIn) {
+    public ResponseEntity<UserResponseDTO> saveUser(@RequestBody @Valid final UserDTO dtoIn) {
         try {
-            UserDTO dtoOut = service.createUser(dtoIn);
+            final UserDTO dtoOut = service.createUser(dtoIn);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(UserResponseDTO.success(dtoOut));
@@ -127,9 +127,10 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Unexpected error")
     })
-    public ResponseEntity<UserDTO> updateAnUserById(@PathVariable Long id, @RequestBody @Valid UserDTO dtoIn) {
+    public ResponseEntity<UserDTO> updateAnUserById(@PathVariable final Long id,
+                                                    @RequestBody @Valid final UserDTO dtoIn) {
         try {
-            UserDTO userToBeUpdate = service.findUserById(id);
+            final UserDTO userToBeUpdate = service.findUserById(id);
 
             if (Objects.nonNull(userToBeUpdate)) {
                 final UserDTO updated = service.updateUserById(id, dtoIn);
@@ -152,9 +153,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Unexpected error")
     })
-    public ResponseEntity<UserResponseDTO> deleteUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDTO> deleteUserById(@PathVariable final Long id) {
         try {
-            UserDTO dto = service.findUserById(id);
+            final UserDTO dto = service.findUserById(id);
 
             if (Objects.nonNull(dto)) {
                 service.deleteUserById(id);

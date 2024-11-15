@@ -1,4 +1,4 @@
-package com.pitang.desafio.tcepe.service;
+package com.pitang.desafio.tcepe.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pitang.desafio.tcepe.dto.UserDTO;
@@ -7,9 +7,11 @@ import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.IUserRepository;
+import com.pitang.desafio.tcepe.service.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -24,10 +26,12 @@ public class UserServiceImpl implements IUserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
     private final IUserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(final IUserRepository repository) {
+    public UserServiceImpl(final IUserRepository repository, final PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -70,6 +74,7 @@ public class UserServiceImpl implements IUserService {
         userEmailValidation(userDTO.getEmail());
         userLoginValidation(userDTO.getLogin());
         final User user = UserDTO.fromDTO(userDTO);
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         try {
             repository.save(user);

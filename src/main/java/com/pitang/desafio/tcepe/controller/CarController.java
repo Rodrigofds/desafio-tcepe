@@ -28,7 +28,7 @@ public class CarController {
         this.service = service;
     }
 
-    @GetMapping(path = "/cars")
+    @GetMapping("/cars")
     @Operation(summary = "List all cars")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cars found"),
