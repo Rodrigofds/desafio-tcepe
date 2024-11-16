@@ -23,7 +23,6 @@ import java.util.Optional;
 
 import static com.pitang.desafio.tcepe.dto.UserDTO.toDTO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -122,9 +121,6 @@ class UserServiceImplTest {
         assertThrows(RuntimeException.class, () -> userService.createUser(userDTO));
     }
 
-    private static UserDTO getUserDTO() throws ParseException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date birthDay = dateFormat.parse("1980-01-20");
     @Test
     void shouldReturnUserDTOWhenUserIsFound() {
         Long userId = 1L;

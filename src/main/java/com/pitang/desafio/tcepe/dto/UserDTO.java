@@ -71,10 +71,10 @@ public class UserDTO {
     @Schema(description = "Cars List")
     private List<CarDTO> cars;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastLogin;
 
     public static UserDTO toDTO(User user) {

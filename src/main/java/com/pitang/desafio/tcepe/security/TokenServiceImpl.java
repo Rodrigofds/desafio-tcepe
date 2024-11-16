@@ -50,7 +50,7 @@ public class TokenServiceImpl implements ITokenService {
     private Instant expirationDate(){
         return LocalDateTime
                 .now()
-                .plusMinutes(25)
+                .plusMinutes(10)
                 .toInstant(ZoneOffset
                         .of("-03:00"));
     }
