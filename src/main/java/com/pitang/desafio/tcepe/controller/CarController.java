@@ -1,6 +1,8 @@
 package com.pitang.desafio.tcepe.controller;
 
 import com.pitang.desafio.tcepe.dto.CarDTO;
+import com.pitang.desafio.tcepe.dto.UserDTO;
+import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.service.ICarService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,11 +15,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -37,7 +41,7 @@ public class CarController {
             @ApiResponse(responseCode = "200", description = "Cars found"),
             @ApiResponse(responseCode = "204", description = "Cars not found"),
     })
-    public ResponseEntity<List<CarDTO>> getAllCars(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<CarDTO>> getAllCars(@AuthenticationPrincipal final User user) {
         if (Objects.isNull(user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         } else {
@@ -57,5 +61,25 @@ public class CarController {
             }
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @GetMapping("/cars/{id}")
+    @Operation(summary = "Find an user by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Unexpected error"),
+    })
+    public ResponseEntity<CarDTO> getCarById(@AuthenticationPrincipal User user, @PathVariable Long id) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        CarDTO dto = service.findCarByUser(user, id);
+        if (Objects.isNull(dto)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        return ResponseEntity.ok(dto);
     }
 }

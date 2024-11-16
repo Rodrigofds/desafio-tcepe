@@ -136,6 +136,7 @@ public class UserDTO {
 
     public static UserDTO toMeDTO(User user) {
         UserDTO userDTO = toDTO(user);
+        user.setPassword(null);
         userDTO.setCreatedAt(user.getCreatedAt());
         userDTO.setLastLogin(user.getLastLogin());
         return userDTO;
