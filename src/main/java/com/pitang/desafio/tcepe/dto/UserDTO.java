@@ -1,5 +1,6 @@
 package com.pitang.desafio.tcepe.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.model.User;
@@ -46,6 +47,7 @@ public class UserDTO {
 
     @NotNull(message = "Birthday cannot be null")
     @Schema(description = "Birthday", example = "AAAA-MM-DD")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     @NotNull(message = "Login cannot be null")
@@ -68,6 +70,12 @@ public class UserDTO {
 
     @Schema(description = "Cars List")
     private List<CarDTO> cars;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private Date createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private Date lastLogin;
 
     public static UserDTO toDTO(User user) {
         UserDTO userDTO = new UserDTO();
@@ -124,5 +132,12 @@ public class UserDTO {
         user.setPhone(userDTO.getPhone());
 
         return user;
+    }
+
+    public static UserDTO toMeDTO(User user) {
+        UserDTO userDTO = toDTO(user);
+        userDTO.setCreatedAt(user.getCreatedAt());
+        userDTO.setLastLogin(user.getLastLogin());
+        return userDTO;
     }
 }
