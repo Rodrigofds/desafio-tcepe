@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.pitang.desafio.tcepe.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,8 @@ public class TokenServiceImpl implements ITokenService {
     @Value("${api.security.token.jwt.secret}")
     private String secret;
 
-    public String generateToken(final User user){
-        try{
+    public String generateToken(final User user) {
+        try {
             return JWT
                     .create()
                     .withIssuer("auth-api")
@@ -33,7 +34,7 @@ public class TokenServiceImpl implements ITokenService {
         }
     }
 
-    public String validateToken(final String token){
+    public String validateToken(final String token) {
         try {
             return JWT
                     .require(Algorithm.HMAC256(secret))
@@ -42,12 +43,14 @@ public class TokenServiceImpl implements ITokenService {
                     .verify(token)
                     .getSubject();
 
-        } catch (JWTVerificationException e){
-            return INVALIDE_TOKEN;
+        } catch (TokenExpiredException e) {
+            throw e;
+        } catch (JWTVerificationException e) {
+            throw new JWTVerificationException("Unauthorized - Invalid session");
         }
     }
 
-    private Instant expirationDate(){
+    private Instant expirationDate() {
         return LocalDateTime
                 .now()
                 .plusMinutes(10)

@@ -2,6 +2,7 @@ package com.pitang.desafio.tcepe.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pitang.desafio.tcepe.dto.CarDTO;
+import com.pitang.desafio.tcepe.exception.expections.CarNotFoundException;
 import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.exception.expections.InvalidsFieldsException;
 import com.pitang.desafio.tcepe.exception.expections.LicensePlateExistsException;
@@ -28,6 +29,7 @@ import static com.pitang.desafio.tcepe.dto.CarDTO.toDTO;
 public class CarServiceImpl implements ICarService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CarServiceImpl.class);
+    public static final String BRAZILIAN_LICENSE_PLATE_MODEL = "^[A-Z]{3}-\\d{1}[A-Z0-9]{1}\\d{2}$";
     private final ICarRepository repository;
     private final IUserRepository userRepository;
 
@@ -59,7 +61,7 @@ public class CarServiceImpl implements ICarService {
 
     @Transactional
     @Override
-    public CarDTO findCarByUser(User user, Long id) {
+    public CarDTO findCarByIdUser(User user, Long id) {
         LOGGER.info("Start searching for car with ID: {}", id);
 
         Optional<Car> car = user.getCars().stream()
@@ -96,8 +98,30 @@ public class CarServiceImpl implements ICarService {
     }
 
     private void validateCarFields(CarDTO carDTO) {
-        if (!carDTO.getLicensePlate().matches("[A-Z]{3}-\\d{4}")) {
+        if (!carDTO.getLicensePlate().matches(BRAZILIAN_LICENSE_PLATE_MODEL)) {
             throw new InvalidsFieldsException(new ErrorMessage("Invalid fields", 1026));
         }
+    }
+
+    @Transactional
+    public CarDTO updateCarById(User user, Long carId, CarDTO carDTO) {
+        validateCarFields(carDTO);
+
+        Car carFound = repository.findCarByUserAndId(user, carId)
+                .orElseThrow(() -> new CarNotFoundException(new ErrorMessage("Car not found", 1027)));
+
+        if (!carFound.getLicensePlate().equals(carDTO.getLicensePlate()) &&
+                repository.existsByLicensePlate(carDTO.getLicensePlate())) {
+            throw new LicensePlateExistsException(new ErrorMessage("License plate already exists", 1025));
+        }
+
+        carFound.setLicensePlate(carDTO.getLicensePlate());
+        carFound.setModel(carDTO.getModel());
+        carFound.setYear(carDTO.getYear());
+        carFound.setColor(carDTO.getColor());
+
+        Car updatedCar = repository.save(carFound);
+
+        return toDTO(updatedCar);
     }
 }

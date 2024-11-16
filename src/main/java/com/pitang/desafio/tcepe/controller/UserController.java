@@ -5,6 +5,7 @@ import com.pitang.desafio.tcepe.dto.UserResponseDTO;
 import com.pitang.desafio.tcepe.exception.expections.EmailException;
 import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
+import com.pitang.desafio.tcepe.exception.expections.UserNotFoundException;
 import com.pitang.desafio.tcepe.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @RestController
@@ -69,16 +71,25 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Unexpected error"),
     })
-    public ResponseEntity<UserDTO> getUserById(@PathVariable final Long id) {
+    public ResponseEntity<Object> getUserById(@PathVariable final Long id) {
         try {
             final UserDTO dto = service.findUserById(id);
             if (Objects.nonNull(dto)) {
                 return ResponseEntity.status(HttpStatus.OK).body(dto);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (NoSuchElementException e) {
+            LOGGER.error("User not found: {}", e.getMessage());
+            ErrorMessage errorMessage = new ErrorMessage("User not found", 1845);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Invalid argument: {}", e.getMessage());
+            ErrorMessage errorMessage = new ErrorMessage("Invalid argument", 1846);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
         } catch (RuntimeException e) {
             LOGGER.error("Unexpected error: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            ErrorMessage errorMessage = new ErrorMessage("Unexpected error", 103);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
         }
     }
 
@@ -97,28 +108,29 @@ public class UserController {
                     .status(HttpStatus.CREATED)
                     .body(UserResponseDTO.success(dtoOut));
 
-        } catch (Exception e) {
-            ErrorMessage errorMessage;
-            HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        } catch (EmailException e) {
+            LOGGER.error("E-mail alert: {}", e.getMessage());
+            ErrorMessage errorMessage = new ErrorMessage("Email already exists", 100);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(UserResponseDTO.error(errorMessage));
 
-            if (e instanceof EmailException) {
-                LOGGER.error("E-mail alert: {}", e.getMessage());
-                errorMessage = new ErrorMessage("Email already exists", 100);
-                status = HttpStatus.BAD_REQUEST;
+        } catch (LoginException e) {
+            LOGGER.error("Login alert: {}", e.getMessage());
+            ErrorMessage errorMessage = new ErrorMessage("Login already exists", 101);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(UserResponseDTO.error(errorMessage));
 
-            } else if (e instanceof LoginException) {
-                LOGGER.error("Login alert: {}", e.getMessage());
-                errorMessage = new ErrorMessage("Login already exists", 101);
-                status = HttpStatus.BAD_REQUEST;
-
-            } else {
-                LOGGER.error("Unexpected error: {}", e.getMessage());
-                errorMessage = new ErrorMessage("Unexpected error", 103);
-            }
-
-            return ResponseEntity.status(status).body(UserResponseDTO.error(errorMessage));
+        } catch (RuntimeException e) {
+            LOGGER.error("Unexpected error: {}", e.getMessage());
+            ErrorMessage errorMessage = new ErrorMessage("Unexpected error", 103);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(UserResponseDTO.error(errorMessage));
         }
     }
+
 
     @PutMapping("/users/{id}")
     @Operation(summary = "Update an user by id")
@@ -164,9 +176,20 @@ public class UserController {
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
+        } catch (UserNotFoundException e) {
+            LOGGER.error("User not found: {}", e.getMessage());
+            ErrorMessage errorMessage = new ErrorMessage("User not found", 104);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(UserResponseDTO.error(errorMessage));
+
         } catch (RuntimeException e) {
             LOGGER.error("Unexpected error: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            ErrorMessage errorMessage = new ErrorMessage("Unexpected error", 103);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(UserResponseDTO.error(errorMessage));
         }
     }
+
 }

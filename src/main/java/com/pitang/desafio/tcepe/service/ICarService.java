@@ -9,7 +9,9 @@ public interface ICarService {
 
     List<CarDTO> findCarsByUser(User user);
 
-    CarDTO findCarByUser(User user, Long id);
+    CarDTO findCarByIdUser(User user, Long id);
 
     CarDTO createCarForUser(User user, CarDTO carDTO);
+
+    CarDTO updateCarById(User user, Long id, CarDTO carDTO);
 }

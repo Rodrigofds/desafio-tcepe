@@ -2,6 +2,7 @@ package com.pitang.desafio.tcepe.controller;
 
 import com.pitang.desafio.tcepe.dto.CarDTO;
 import com.pitang.desafio.tcepe.dto.CarResponseDTO;
+import com.pitang.desafio.tcepe.exception.expections.CarNotFoundException;
 import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.exception.expections.InvalidsFieldsException;
 import com.pitang.desafio.tcepe.exception.expections.LicensePlateExistsException;
@@ -20,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,11 +76,11 @@ public class CarController {
             @ApiResponse(responseCode = "500", description = "Unexpected error"),
     })
     public ResponseEntity<CarDTO> getCarById(@AuthenticationPrincipal User user, @PathVariable Long id) {
-        if (user == null) {
+        if (Objects.isNull(user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
 
-        CarDTO dto = service.findCarByUser(user, id);
+        CarDTO dto = service.findCarByIdUser(user, id);
         if (Objects.isNull(dto)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -96,7 +98,7 @@ public class CarController {
             @ApiResponse(responseCode = "500", description = "Unexpected error")
     })
     public ResponseEntity<CarResponseDTO> createCar(@AuthenticationPrincipal User user, @Valid @RequestBody CarDTO carDTO) {
-        if (user == null) {
+        if (Objects.isNull(user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(CarResponseDTO.error(new ErrorMessage("Unauthorized", 1099)));
         } else {
@@ -121,4 +123,45 @@ public class CarController {
         }
     }
 
+    @PutMapping("/cars/{id}")
+    @Operation(summary = "Update a car for the logged user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Car successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid or missing fields"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized or invalid session"),
+            @ApiResponse(responseCode = "409", description = "License plate already exists"),
+            @ApiResponse(responseCode = "404", description = "Car not found"),
+            @ApiResponse(responseCode = "500", description = "Unexpected error")
+    })
+    public ResponseEntity<CarResponseDTO> updateCarById(@AuthenticationPrincipal User user,
+                                                    @PathVariable Long id,
+                                                    @Valid @RequestBody CarDTO carDTO) {
+        if (Objects.isNull(user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(CarResponseDTO.error(new ErrorMessage("Unauthorized", 1099)));
+        } else {
+            try {
+                CarDTO updatedCar = service.updateCarById(user, id, carDTO);
+
+                return ResponseEntity.ok(CarResponseDTO.success(updatedCar));
+
+            } catch (LicensePlateExistsException e) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(CarResponseDTO.error(new ErrorMessage(e.getMessage(), e.getErrorCode())));
+
+            } catch (MissingFieldsException | InvalidsFieldsException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(CarResponseDTO.error(new ErrorMessage(e.getMessage(), 1080)));
+
+            } catch (CarNotFoundException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(CarResponseDTO.error(new ErrorMessage(e.getMessage(), e.getErrorCode())));
+
+            } catch (RuntimeException e) {
+                LOGGER.error("Unexpected error: {}", e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(CarResponseDTO.error(new ErrorMessage("Unexpected error", 108)));
+            }
+        }
+    }
 }
