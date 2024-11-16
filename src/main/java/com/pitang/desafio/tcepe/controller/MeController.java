@@ -1,6 +1,5 @@
 package com.pitang.desafio.tcepe.controller;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.pitang.desafio.tcepe.dto.UserDTO;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.service.IUserService;
