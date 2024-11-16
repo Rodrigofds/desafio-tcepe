@@ -160,7 +160,7 @@ public class UserController {
             if (Objects.nonNull(dto)) {
                 service.deleteUserById(id);
                 return ResponseEntity.status(HttpStatus.ACCEPTED)
-                        .body(UserResponseDTO.success("Success: User " + id + " deleted"));
+                        .body(UserResponseDTO.success("User " + id + " deleted"));
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
