@@ -2,6 +2,7 @@ package com.pitang.desafio.tcepe.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -71,10 +72,10 @@ public class UserDTO {
     @Schema(description = "Cars List")
     private List<CarDTO> cars;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastLogin;
 
     public static UserDTO toDTO(User user) {
@@ -136,7 +137,6 @@ public class UserDTO {
 
     public static UserDTO toMeDTO(User user) {
         UserDTO userDTO = toDTO(user);
-        user.setPassword(null);
         userDTO.setCreatedAt(user.getCreatedAt());
         userDTO.setLastLogin(user.getLastLogin());
         return userDTO;
