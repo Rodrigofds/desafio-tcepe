@@ -2,9 +2,13 @@ package com.pitang.desafio.tcepe.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pitang.desafio.tcepe.dto.CarDTO;
+import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
+import com.pitang.desafio.tcepe.exception.expections.InvalidsFieldsException;
+import com.pitang.desafio.tcepe.exception.expections.LicensePlateExistsException;
 import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.ICarRepository;
+import com.pitang.desafio.tcepe.repository.IUserRepository;
 import com.pitang.desafio.tcepe.service.ICarService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.pitang.desafio.tcepe.dto.CarDTO.fromDTO;
 import static com.pitang.desafio.tcepe.dto.CarDTO.toDTO;
 
 @Service
@@ -24,10 +29,12 @@ public class CarServiceImpl implements ICarService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CarServiceImpl.class);
     private final ICarRepository repository;
+    private final IUserRepository userRepository;
 
     @Autowired
-    public CarServiceImpl(final ICarRepository repository) {
+    public CarServiceImpl(final ICarRepository repository, IUserRepository userRepository) {
         this.repository = repository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -66,5 +73,31 @@ public class CarServiceImpl implements ICarService {
 
         LOGGER.info("Car found: {}", car);
         return toDTO(car.get());
+    }
+
+    @Transactional
+    public CarDTO createCarForUser(User user, CarDTO carDTO) {
+        validateCarFields(carDTO);
+
+        if (repository.existsByLicensePlate(carDTO.getLicensePlate())) {
+            throw new LicensePlateExistsException(new ErrorMessage("License plate already exists", 1025));
+        }
+
+        Car newCar = fromDTO(carDTO);
+
+        User userFound = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        newCar.setUser(userFound);
+
+        Car savedCar = repository.save(newCar);
+
+        return toDTO(savedCar);
+    }
+
+    private void validateCarFields(CarDTO carDTO) {
+        if (!carDTO.getLicensePlate().matches("[A-Z]{3}-\\d{4}")) {
+            throw new InvalidsFieldsException(new ErrorMessage("Invalid fields", 1026));
+        }
     }
 }
