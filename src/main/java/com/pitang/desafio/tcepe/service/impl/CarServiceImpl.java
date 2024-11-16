@@ -3,6 +3,7 @@ package com.pitang.desafio.tcepe.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pitang.desafio.tcepe.dto.CarDTO;
 import com.pitang.desafio.tcepe.model.Car;
+import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.ICarRepository;
 import com.pitang.desafio.tcepe.service.ICarService;
 import org.slf4j.Logger;
@@ -26,10 +27,10 @@ public class CarServiceImpl implements ICarService {
     }
 
     @Override
-    public List<CarDTO> findAllCars() {
+    public List<CarDTO> findCarsByUser(User user) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            final List<Car> cars = repository.findAll();
+                final List<Car> cars = repository.findByUser(user);
 
             return cars.isEmpty()
                     ? new ArrayList<>()
@@ -40,7 +41,7 @@ public class CarServiceImpl implements ICarService {
                     .collect(Collectors.toList());
 
         } catch (RuntimeException e) {
-            LOGGER.error("Error during all users search.");
+            LOGGER.error("Error during search user's cars.");
             throw new RuntimeException(e.getMessage());
         }
     }

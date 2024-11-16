@@ -5,6 +5,7 @@ import com.pitang.desafio.tcepe.dto.LoginResponseDTO;
 import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.security.ITokenService;
+import com.pitang.desafio.tcepe.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import static com.pitang.desafio.tcepe.dto.UserDTO.toDTO;
+
 @RestController
 @RequestMapping("/api")
 public class SignInController {
@@ -31,11 +34,14 @@ public class SignInController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SignInController.class);
     private final AuthenticationManager authenticationManager;
     private final ITokenService tokenService;
+    private final IUserService userService;
 
     @Autowired
-    public SignInController(final AuthenticationManager authenticationManager, final ITokenService tokenService) {
+    public SignInController(final AuthenticationManager authenticationManager, final ITokenService tokenService,
+                            final IUserService userService) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
+        this.userService = userService;
     }
 
     @PostMapping("/signin")
@@ -50,6 +56,7 @@ public class SignInController {
                     .authenticate(new UsernamePasswordAuthenticationToken(dto.getLogin(), dto.getPassword()));
 
             final String token = tokenService.generateToken((User) auth.getPrincipal());
+            this.userService.updateLastLoginByUser(toDTO((User) auth.getPrincipal()));
 
             return ResponseEntity.ok(new LoginResponseDTO(token));
 

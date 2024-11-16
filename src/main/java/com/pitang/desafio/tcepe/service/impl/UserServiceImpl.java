@@ -17,9 +17,14 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.pitang.desafio.tcepe.dto.UserDTO.fromDTO;
+import static com.pitang.desafio.tcepe.dto.UserDTO.toDTO;
+import static com.pitang.desafio.tcepe.dto.UserDTO.toUpdateFromDTO;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -73,12 +78,13 @@ public class UserServiceImpl implements IUserService {
 
         userEmailValidation(userDTO.getEmail());
         userLoginValidation(userDTO.getLogin());
-        final User user = UserDTO.fromDTO(userDTO);
+        final User user = fromDTO(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setCreatedAt(new Date());
 
         try {
             repository.save(user);
-            return UserDTO.toDTO(user);
+            return toDTO(user);
 
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -105,16 +111,28 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserDTO updateUserById(final Long id, final UserDTO dtoIn) throws EmailException, LoginException {
         try {
-            final User userToUpdate = UserDTO.toUpdateFromDTO(dtoIn, id);
+            final User userToUpdate = toUpdateFromDTO(dtoIn, id);
 
             final User upToDated = repository.saveAndFlush(userToUpdate);
 
-            return UserDTO.toDTO(upToDated);
+            return toDTO(upToDated);
 
         } catch (RuntimeException e) {
             LOGGER.error("Error during updating user.");
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    @Transactional
+    @Override
+    public void updateLastLoginByUser(final UserDTO dtoIn) throws EmailException, LoginException {
+        this.repository
+                .findById(dtoIn.getId())
+                .ifPresent(user -> {
+                            user.setLastLogin(new Date());
+                            repository.save(user);
+                        }
+                );
     }
 
     @Transactional
