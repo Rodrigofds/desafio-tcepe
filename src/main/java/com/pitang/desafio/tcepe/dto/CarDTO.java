@@ -20,7 +20,6 @@ public class CarDTO {
     private Long id;
 
     @NotNull(message = "Year cannot be null")
-    @NotBlank(message = "Year cannot be blank")
     @Schema(description = "Car's year", example = "1977")
     private int year;
 

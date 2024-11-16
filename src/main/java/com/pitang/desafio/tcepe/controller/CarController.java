@@ -1,8 +1,11 @@
 package com.pitang.desafio.tcepe.controller;
 
 import com.pitang.desafio.tcepe.dto.CarDTO;
-import com.pitang.desafio.tcepe.dto.UserDTO;
-import com.pitang.desafio.tcepe.model.Car;
+import com.pitang.desafio.tcepe.dto.CarResponseDTO;
+import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
+import com.pitang.desafio.tcepe.exception.expections.InvalidsFieldsException;
+import com.pitang.desafio.tcepe.exception.expections.LicensePlateExistsException;
+import com.pitang.desafio.tcepe.exception.expections.MissingFieldsException;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.service.ICarService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,12 +19,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -49,9 +54,7 @@ public class CarController {
                 final List<CarDTO> cars = service.findCarsByUser(user);
 
                 if (!cars.isEmpty()) {
-                    return ResponseEntity
-                            .status(HttpStatus.OK)
-                            .body(cars);
+                    return ResponseEntity.status(HttpStatus.OK).body(cars);
                 }
 
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body(cars);
@@ -82,4 +85,40 @@ public class CarController {
 
         return ResponseEntity.ok(dto);
     }
+
+    @PostMapping("/cars")
+    @Operation(summary = "Register a new car for the logged user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Car successfully registered"),
+            @ApiResponse(responseCode = "400", description = "Invalid or missing fields"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized or invalid session"),
+            @ApiResponse(responseCode = "409", description = "License plate already exists"),
+            @ApiResponse(responseCode = "500", description = "Unexpected error")
+    })
+    public ResponseEntity<CarResponseDTO> createCar(@AuthenticationPrincipal User user, @Valid @RequestBody CarDTO carDTO) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(CarResponseDTO.error(new ErrorMessage("Unauthorized", 1099)));
+        } else {
+            try {
+                CarDTO createdCar = service.createCarForUser(user, carDTO);
+
+                return ResponseEntity.status(HttpStatus.CREATED).body(CarResponseDTO.success(createdCar));
+
+            } catch (LicensePlateExistsException e) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(CarResponseDTO.error(new ErrorMessage(e.getMessage(), e.getErrorCode())));
+
+            } catch (MissingFieldsException | InvalidsFieldsException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(CarResponseDTO.error(new ErrorMessage(e.getMessage(), 1080)));
+
+            } catch (RuntimeException e) {
+                LOGGER.error("Unexpected error: {}", e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(CarResponseDTO.error(new ErrorMessage("Unexpected error", 108)));
+            }
+        }
+    }
+
 }
