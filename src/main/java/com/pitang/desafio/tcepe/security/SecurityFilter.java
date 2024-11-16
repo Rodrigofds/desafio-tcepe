@@ -1,5 +1,9 @@
 package com.pitang.desafio.tcepe.security;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +39,21 @@ public class SecurityFilter extends OncePerRequestFilter {
         final String token = this.recoverToken(request);
 
         if (Objects.nonNull(token)) {
-            final String login = ITokenService.validateToken(token);
-            final Optional<User> user = userRepository.findByLogin(login);
+            try {
+                final String login = ITokenService.validateToken(token);
+                final Optional<User> user = userRepository.findByLogin(login);
 
-            user.ifPresent(userFound -> SecurityContextHolder
-                    .getContext()
-                    .setAuthentication(new UsernamePasswordAuthenticationToken(
-                            userFound, null, userFound.getAuthorities())));
+                user.ifPresent(userFound -> SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(new UsernamePasswordAuthenticationToken(
+                                userFound, null, userFound.getAuthorities())));
+
+            } catch (JWTVerificationException | IllegalArgumentException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write(new ObjectMapper().writeValueAsString(getError()));
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);
@@ -55,5 +67,9 @@ public class SecurityFilter extends OncePerRequestFilter {
                 ? null :
                 authHeader
                         .replace("Bearer ", "");
+    }
+
+    private ErrorMessage getError() {
+        return new ErrorMessage("Unauthorized - Invalid session", 1778);
     }
 }

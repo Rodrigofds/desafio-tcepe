@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -60,20 +61,18 @@ public class SignInController {
 
             return ResponseEntity.ok(new LoginResponseDTO(token));
 
+        } catch (UsernameNotFoundException e) {
+            LOGGER.error("Login or Password alert: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorMessage(e.getMessage(), 1011));
+        } catch (BadCredentialsException e) {
+            LOGGER.error("Invalid login or password: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorMessage("Invalid login or password", 1847));
         } catch (RuntimeException e) {
-            ErrorMessage errorMessage;
-            HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-
-            if (e instanceof UsernameNotFoundException) {
-                LOGGER.error("Login or Password alert: {}", e.getMessage());
-                errorMessage = new ErrorMessage(e.getMessage(), 1011);
-                status = HttpStatus.BAD_REQUEST;
-            } else {
-                LOGGER.error("Unexpected error: {}", e.getMessage());
-                errorMessage = new ErrorMessage("Unexpected error", 103);
-            }
-
-            return ResponseEntity.status(status).body(errorMessage);
+            LOGGER.error("Unexpected error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorMessage("Unexpected error", 103));
         }
     }
 }

@@ -10,11 +10,7 @@ import java.util.Optional;
 public interface ICarRepository extends JpaRepository<Car, Long> {
     List<Car> findByUser(User user);
 
-    Car findCarByUserAndId(User user, Long id);
+    Optional<Car> findCarByUserAndId(User user, Long id);
 
     boolean existsByLicensePlate(String licensePlate);
-
-    Optional<Object> findByLicensePlate(String licensePlate);
-
-    Car findCarByUserAndLicensePlate(User user, String licensePlate);
 }
