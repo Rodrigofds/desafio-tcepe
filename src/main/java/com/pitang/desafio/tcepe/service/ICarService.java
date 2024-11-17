@@ -14,4 +14,6 @@ public interface ICarService {
     CarDTO createCarForUser(User user, CarDTO carDTO);
 
     CarDTO updateCarById(User user, Long id, CarDTO carDTO);
+
+    void deleteCarByUser(User user, Long id);
 }
