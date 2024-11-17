@@ -6,6 +6,7 @@ import com.pitang.desafio.tcepe.exception.expections.CarNotFoundException;
 import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.exception.expections.InvalidsFieldsException;
 import com.pitang.desafio.tcepe.exception.expections.LicensePlateExistsException;
+import com.pitang.desafio.tcepe.exception.expections.UserNotFoundException;
 import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.ICarRepository;
@@ -29,7 +30,7 @@ import static com.pitang.desafio.tcepe.dto.CarDTO.toDTO;
 public class CarServiceImpl implements ICarService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CarServiceImpl.class);
-    public static final String BRAZILIAN_LICENSE_PLATE_MODEL = "^[A-Z]{3}-\\d{1}[A-Z0-9]{1}\\d{2}$";
+    public static final String BRAZILIAN_LICENSE_PLATE_PATTERN = "^[A-Z]{3}-\\d{1}[A-Z0-9]{1}\\d{2}$";
     private final ICarRepository repository;
     private final IUserRepository userRepository;
 
@@ -88,7 +89,7 @@ public class CarServiceImpl implements ICarService {
         Car newCar = fromDTO(carDTO);
 
         User userFound = userRepository.findById(user.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(new ErrorMessage("User not found", 104)));
 
         newCar.setUser(userFound);
 
@@ -98,7 +99,7 @@ public class CarServiceImpl implements ICarService {
     }
 
     private void validateCarFields(CarDTO carDTO) {
-        if (!carDTO.getLicensePlate().matches(BRAZILIAN_LICENSE_PLATE_MODEL)) {
+        if (!carDTO.getLicensePlate().matches(BRAZILIAN_LICENSE_PLATE_PATTERN)) {
             throw new InvalidsFieldsException(new ErrorMessage("Invalid fields", 1026));
         }
     }
@@ -123,5 +124,21 @@ public class CarServiceImpl implements ICarService {
         Car updatedCar = repository.save(carFound);
 
         return toDTO(updatedCar);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCarByUser(User user, Long carId) {
+
+        User userFound = userRepository.findById(user.getId())
+                .orElseThrow(() -> new UserNotFoundException(new ErrorMessage("User not found", 104)));
+
+        boolean removed = userFound.getCars().removeIf(car -> car.getId().equals(carId));
+
+        if (!removed) {
+            throw new CarNotFoundException(new ErrorMessage("Car not found", 104));
+        }
+
+        userRepository.save(userFound);
     }
 }

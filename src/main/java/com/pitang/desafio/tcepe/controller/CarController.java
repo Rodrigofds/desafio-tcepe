@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,18 +70,18 @@ public class CarController {
     }
 
     @GetMapping("/cars/{id}")
-    @Operation(summary = "Find an user by id")
+    @Operation(summary = "Find an car by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User found"),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Unexpected error"),
     })
-    public ResponseEntity<CarDTO> getCarById(@AuthenticationPrincipal User user, @PathVariable Long id) {
+    public ResponseEntity<CarDTO> getCarById(@AuthenticationPrincipal final User user, @PathVariable final Long id) {
         if (Objects.isNull(user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
 
-        CarDTO dto = service.findCarByIdUser(user, id);
+        final CarDTO dto = service.findCarByIdUser(user, id);
         if (Objects.isNull(dto)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -97,13 +98,14 @@ public class CarController {
             @ApiResponse(responseCode = "409", description = "License plate already exists"),
             @ApiResponse(responseCode = "500", description = "Unexpected error")
     })
-    public ResponseEntity<CarResponseDTO> createCar(@AuthenticationPrincipal User user, @Valid @RequestBody CarDTO carDTO) {
+    public ResponseEntity<CarResponseDTO> createCar(@AuthenticationPrincipal final User user,
+                                                    @Valid @RequestBody final CarDTO carDTO) {
         if (Objects.isNull(user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(CarResponseDTO.error(new ErrorMessage("Unauthorized", 1099)));
         } else {
             try {
-                CarDTO createdCar = service.createCarForUser(user, carDTO);
+                final CarDTO createdCar = service.createCarForUser(user, carDTO);
 
                 return ResponseEntity.status(HttpStatus.CREATED).body(CarResponseDTO.success(createdCar));
 
@@ -133,9 +135,9 @@ public class CarController {
             @ApiResponse(responseCode = "404", description = "Car not found"),
             @ApiResponse(responseCode = "500", description = "Unexpected error")
     })
-    public ResponseEntity<CarResponseDTO> updateCarById(@AuthenticationPrincipal User user,
-                                                    @PathVariable Long id,
-                                                    @Valid @RequestBody CarDTO carDTO) {
+    public ResponseEntity<CarResponseDTO> updateCarById(@AuthenticationPrincipal final User user,
+                                                    @PathVariable final Long id,
+                                                    @Valid @RequestBody final CarDTO carDTO) {
         if (Objects.isNull(user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(CarResponseDTO.error(new ErrorMessage("Unauthorized", 1099)));
@@ -164,4 +166,34 @@ public class CarController {
             }
         }
     }
+
+    @DeleteMapping("/cars/{id}")
+    @Operation(summary = "Delete a car from the logged user by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Car successfully deleted"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized or invalid session"),
+            @ApiResponse(responseCode = "404", description = "Car not found"),
+            @ApiResponse(responseCode = "500", description = "Unexpected error")
+    })
+    public ResponseEntity<CarResponseDTO> deleteCarByUser(@AuthenticationPrincipal final User user,
+                                                          @PathVariable final Long id) {
+        if (Objects.isNull(user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(CarResponseDTO.error(new ErrorMessage("Unauthorized", 1099)));
+        }
+
+        try {
+            service.deleteCarByUser(user, id);
+            return ResponseEntity.ok(CarResponseDTO.success("Car successfully deleted"));
+
+        } catch (CarNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(CarResponseDTO.error(new ErrorMessage(e.getMessage(), e.getErrorCode())));
+        } catch (RuntimeException e) {
+            LOGGER.error("Unexpected error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CarResponseDTO.error(new ErrorMessage("Unexpected error", 108)));
+        }
+    }
+
 }
