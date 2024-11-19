@@ -1,6 +1,7 @@
 package com.pitang.desafio.tcepe.controller;
 
 import com.pitang.desafio.tcepe.dto.UserDTO;
+import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.service.IUserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -71,5 +72,77 @@ class UserControllerTest {
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
+    }
+
+    @Test
+    void getUserById_ShouldReturn200WhenUserFound() {
+        // Arrange
+        Long userId = 1L;
+        UserDTO mockUser = new UserDTO();
+        mockUser.setId(userId);
+        Mockito.when(userService.findUserById(userId)).thenReturn(mockUser);
+
+        // Act
+        ResponseEntity<Object> response = userController.getUserById(userId);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody() instanceof UserDTO);
+        assertEquals(mockUser, response.getBody());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenUserIdNotFound() {
+        // Arrange
+        Long userId = 2L;
+        Mockito.when(userService.findUserById(userId)).thenReturn(null);
+
+        // Act
+        ResponseEntity<Object> response = userController.getUserById(userId);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void shouldReturnIllegalArgumentExceptionOccurs() {
+        // Arrange
+        Long invalidUserId = -1L;
+        Mockito.when(userService.findUserById(invalidUserId))
+                .thenThrow(new IllegalArgumentException("Invalid argument"));
+
+        // Act
+        ResponseEntity<Object> response = userController.getUserById(invalidUserId);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody() instanceof ErrorMessage);
+
+        ErrorMessage errorMessage = (ErrorMessage) response.getBody();
+        assertEquals("Invalid argument", errorMessage.getError());
+        assertEquals(1846, errorMessage.getErrorCode());
+    }
+
+    @Test
+    void shouldReturnInternalServerErrorMessageWhenUnexpectedErrorOccurs() {
+        // Arrange
+        Long userId = 4L;
+        Mockito.when(userService.findUserById(userId))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        // Act
+        ResponseEntity<Object> response = userController.getUserById(userId);
+
+        // Assert
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody() instanceof ErrorMessage);
+
+        ErrorMessage errorMessage = (ErrorMessage) response.getBody();
+        assertEquals("Unexpected error", errorMessage.getError());
+        assertEquals(103, errorMessage.getErrorCode());
     }
 }
