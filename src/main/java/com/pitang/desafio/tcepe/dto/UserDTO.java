@@ -13,6 +13,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -30,18 +31,15 @@ public class UserDTO {
 
     @NotNull(message = "First name cannot be null")
     @NotBlank(message = "First name cannot be blank")
-    @Size(min = 3, max = 15, message = "First name should be between 3 and 15 characters")
     @Schema(description = "nome", example = "Fulano")
     private String firstName;
 
     @NotNull(message = "Last name cannot be null")
     @NotBlank(message = "Last name cannot be blank")
-    @Size(min = 3, max = 15, message = "Last name should be between 3 and 15 characters")
     @Schema(description = "Sobrenome", example = "Ciclano")
     private String lastName;
 
     @NotNull(message = "E-mail cannot be null")
-    @Size(min = 3, max = 30, message = "E-mail should be between 3 and 30 characters")
     @Schema(description = "E-mail", example = "fulano@ciclano.com")
     private String email;
 
@@ -52,19 +50,16 @@ public class UserDTO {
 
     @NotNull(message = "Login cannot be null")
     @NotBlank(message = "Login cannot be blank")
-    @Size(min = 3, max = 30, message = "Login should be between 3 and 30 characters")
     @Schema(description = "Login", example = "fulano")
     private String login;
 
     @NotNull(message = "Password cannot be null")
     @NotBlank(message = "Password cannot be blank")
-    @Size(min = 3, max = 15, message = "Password should be between 3 and 15 characters")
     @Schema(description = "Password", example = "#$¨&*(")
     private String password;
 
     @NotNull(message = "Phone cannot be null")
     @NotBlank(message = "Phone cannot be blank")
-    @Size(min = 8, message = "Phone should have min 12 characters")
     @Schema(description = "Password", example = "8199999-9999")
     private String phone;
 
@@ -88,10 +83,12 @@ public class UserDTO {
         userDTO.setPassword(user.getPassword());
         userDTO.setPhone(user.getPhone());
 
-        if (Objects.nonNull(user.getCars() )) {
+        if (Objects.nonNull(user.getCars())) {
             userDTO.setCars(user.getCars().stream()
                     .map(CarDTO::toDTO)
                     .collect(Collectors.toList()));
+        } else {
+            user.setCars(new ArrayList<>());
         }
 
         return userDTO;
@@ -115,21 +112,9 @@ public class UserDTO {
                         car.setUser(user);
                         return car;
                     }).collect(Collectors.toList()));
+        } else {
+            user.setCars(new ArrayList<>());
         }
-
-        return user;
-    }
-
-    public static User toUpdateFromDTO(final UserDTO userDTO, final long id) {
-        User user = new User();
-        user.setId(id);
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setEmail(userDTO.getEmail());
-        user.setBirthday(userDTO.getBirthday());
-        user.setLogin(userDTO.getLogin());
-        user.setPassword(userDTO.getPassword());
-        user.setPhone(userDTO.getPhone());
 
         return user;
     }
