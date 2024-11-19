@@ -184,7 +184,7 @@ public class CarController {
 
         try {
             service.deleteCarByUser(user, id);
-            return ResponseEntity.ok(CarResponseDTO.success("Car successfully deleted"));
+            return ResponseEntity.noContent().build();
 
         } catch (CarNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
