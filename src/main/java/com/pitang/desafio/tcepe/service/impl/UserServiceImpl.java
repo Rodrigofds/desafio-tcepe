@@ -5,6 +5,7 @@ import com.pitang.desafio.tcepe.dto.UserDTO;
 import com.pitang.desafio.tcepe.exception.expections.EmailException;
 import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
+import com.pitang.desafio.tcepe.exception.expections.UserNotFoundException;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.IUserRepository;
 import com.pitang.desafio.tcepe.service.IUserService;
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 
 import static com.pitang.desafio.tcepe.dto.UserDTO.fromDTO;
 import static com.pitang.desafio.tcepe.dto.UserDTO.toDTO;
-import static com.pitang.desafio.tcepe.dto.UserDTO.toUpdateFromDTO;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -43,8 +43,10 @@ public class UserServiceImpl implements IUserService {
     public List<UserDTO> findAllUsers() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
+            LOGGER.info("Searching users list");
             final List<User> users = repository.findAll();
 
+            LOGGER.info("Returning users lists");
             return users.isEmpty()
                     ? new ArrayList<>()
                     : users
@@ -53,6 +55,7 @@ public class UserServiceImpl implements IUserService {
                             .convertValue(user, UserDTO.class))
                     .collect(Collectors.toList());
         } catch (RuntimeException e) {
+
             LOGGER.error("Error during all users search.");
             throw new RuntimeException(e.getMessage());
         }
@@ -64,6 +67,7 @@ public class UserServiceImpl implements IUserService {
             LOGGER.info("Start user search");
             final Optional<User> user = repository.findById(id);
 
+            LOGGER.info("User search");
             return user.map(UserDTO::toDTO).orElse(null);
 
         } catch (RuntimeException e) {
@@ -75,18 +79,28 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @Override
     public UserDTO createUser(@Valid final UserDTO userDTO) throws EmailException, LoginException {
+        LOGGER.info("Start user creation");
 
+        LOGGER.info("User email validation");
         userEmailValidation(userDTO.getEmail());
+
+        LOGGER.info("User login validation");
         userLoginValidation(userDTO.getLogin());
+
         final User user = fromDTO(userDTO);
+
+        LOGGER.info("Enconding password");
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setCreatedAt(new Date());
 
         try {
             repository.save(user);
+
+            LOGGER.info("User created");
             return toDTO(user);
 
         } catch (Exception e) {
+            LOGGER.info("");
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -110,22 +124,27 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @Override
     public UserDTO updateUserById(final Long id, final UserDTO dtoIn) throws EmailException, LoginException {
-        try {
-            final User userToUpdate = toUpdateFromDTO(dtoIn, id);
+        LOGGER.info("Start user update");
+        User existingUser = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(new ErrorMessage("User not found", 4695)));
 
-            final User upToDated = repository.saveAndFlush(userToUpdate);
+        LOGGER.info("Updating...");
+        existingUser.setFirstName(dtoIn.getFirstName());
+        existingUser.setLastName(dtoIn.getLastName());
+        existingUser.setEmail(dtoIn.getEmail());
+        existingUser.setLogin(dtoIn.getLogin());
+        existingUser.setPassword(dtoIn.getPassword());
+        existingUser.setBirthday(dtoIn.getBirthday());
+        existingUser.setPhone(dtoIn.getPhone());
 
-            return toDTO(upToDated);
-
-        } catch (RuntimeException e) {
-            LOGGER.error("Error during updating user.");
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        LOGGER.info("User updated");
+        return toDTO(repository.saveAndFlush(existingUser));
     }
 
     @Transactional
     @Override
     public void updateLastLoginByUser(final UserDTO dtoIn) throws EmailException, LoginException {
+        LOGGER.info("Updating user last session login");
         this.repository
                 .findById(dtoIn.getId())
                 .ifPresent(user -> {
@@ -139,6 +158,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void deleteUserById(final Long id) throws EmailException, LoginException {
         try {
+            LOGGER.info("Start user deleting");
             repository.deleteById(id);
 
         } catch (RuntimeException e) {

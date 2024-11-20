@@ -2,7 +2,9 @@ package com.pitang.desafio.tcepe.service;
 
 import com.pitang.desafio.tcepe.dto.UserDTO;
 import com.pitang.desafio.tcepe.exception.expections.EmailException;
+import com.pitang.desafio.tcepe.exception.expections.ErrorMessage;
 import com.pitang.desafio.tcepe.exception.expections.LoginException;
+import com.pitang.desafio.tcepe.exception.expections.UserNotFoundException;
 import com.pitang.desafio.tcepe.model.Car;
 import com.pitang.desafio.tcepe.model.User;
 import com.pitang.desafio.tcepe.repository.IUserRepository;
@@ -160,7 +162,9 @@ class UserServiceImplTest {
     void shouldReturnUpdatedUserDTOWhenUpdateIsSuccessful() {
         Long userId = 1L;
         UserDTO dtoIn = getUserDTO();
+        dtoIn.setId(1L);
         User updatedUser = getUsers().get(0);
+        updatedUser.setId(1L);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(updatedUser));
         when(userRepository.saveAndFlush(any(User.class))).thenReturn(updatedUser);
@@ -173,17 +177,18 @@ class UserServiceImplTest {
     }
 
     @Test
-    void shouldThrowRuntimeExceptionWhenErrorOccursDuringUpdate() {
+    void shouldThrowUserNotFoundExceptionWhenUserNotFoundDuringUpdate() {
         Long userId = 1L;
         UserDTO dtoIn = getUserDTO();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(getUsers().get(0)));
-        when(userRepository.saveAndFlush(any(User.class))).thenThrow(new RuntimeException("Database error"));
+        when(userRepository.saveAndFlush(any(User.class)))
+                .thenThrow(new UserNotFoundException(new ErrorMessage("User not found", 4695)));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
                 userService.updateUserById(userId, dtoIn)
         );
-        assertEquals("Database error", exception.getMessage());
+        assertEquals("User not found", exception.getMessage());
     }
 
     @Test

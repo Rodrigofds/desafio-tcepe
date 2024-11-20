@@ -22,7 +22,9 @@ public class JsonRequestInterceptor implements HandlerInterceptor {
         if (Objects.isNull(contentType) || !contentType.equals("application/json")) {
             response.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
             response.getWriter()
-                    .write("{\"error\": \"Only application/json is accepted.\"}");
+                    .write("{ \"error\": \"Only application/json is accepted.\"," +
+                            "    \"erroCode\" \"4879\"" +
+                              "}");
             return false;
         }
 
